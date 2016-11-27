@@ -1,22 +1,40 @@
+#include <QCoreApplication>
+#include <QObject>
+#include <QTimer>
 #include <QSettings>
 #include <QDebug>
-#include <QThread>
 
 #include "angeecrawlapplication.h"
-
-#define SETTINGS_THREAD_NS "numberOfWOrkingThreads"
-#define DEFAULT_NUMBER_OF_THREADS 4
+#include "appdefaults.h"
 
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication app(argc, argv);
+
+    app.setApplicationName(APPLICATION_NAME);
+    app.setApplicationVersion(APPLICATION_VERSION);
+
     QSettings *settings = new QSettings("CrawlAngee", "Crawler");
     if (settings->value(SETTINGS_THREAD_NS).isNull()) {
         settings->setValue(SETTINGS_THREAD_NS, DEFAULT_NUMBER_OF_THREADS);
     }
 
-    AngeeCrawlApplication *app = new AngeeCrawlApplication(argc, argv, settings);
+    QString def("https://www.meetangee.com");
+    if (argc == 1 && def.isEmpty()) {
+        qDebug() << "Please specify url on input";
 
-    return app->run();
+        return 0;
+    }
+
+    AngeeCrawlApplication crawlerTask(settings);
+    QObject::connect(&crawlerTask, SIGNAL(finished()), &app, SLOT(quit()));
+
+    QUrl url(def);
+    crawlerTask.appendToQueue(url);
+
+    QTimer::singleShot(10, &crawlerTask, SLOT(run()));
+
+    return app.exec();
 }
 

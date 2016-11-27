@@ -1,27 +1,48 @@
-#include <QCoreApplication>
-#include <QSettings>
-#include <QDebug>
-
 #ifndef ANGEECRAWLAPPLICATION_H
 #define ANGEECRAWLAPPLICATION_H
 
-#define APPLICATION_NAME "Angee crawl application"
-#define APPLICATION_VERSION "1.0"
+#include <QObject>
+#include <QSettings>
+#include <QDebug>
+#include <QElapsedTimer>
+#include <QMap>
+#include <QQueue>
+
+#include "appdefaults.h"
+#include "httpdownloader.h"
+#include "crawlworkerthread.h"
+#include "page.h"
 
 
-class AngeeCrawlApplication : public QCoreApplication
+class AngeeCrawlApplication : public QObject
 {
 
-public:
-    AngeeCrawlApplication(int argc, char *argv[]);
-    AngeeCrawlApplication(int argc, char *argv[], QSettings *applicationSettings);
+    Q_OBJECT
 
-    int run();
+public:
+    AngeeCrawlApplication(QObject *parent);
+    AngeeCrawlApplication(QSettings *applicationSettings);
+    ~AngeeCrawlApplication();
+
+
+signals:
+    void finished();
+
+public slots:
+    void run();
+    //void fileDownloaded(QString);
+
+    void appendToQueue(QUrl url);
+    void appendPage(Page page);
 
 private:
     QSettings *applicationSettings;
     void initiliazeApplication();
 
+    QQueue<QUrl> pagesQueue;
+    QMap<QString, Page> pages;
+
+    CrawlWorkerThread *workerThreads;
 };
 
 #endif // ANGEECRAWLAPPLICATION_H

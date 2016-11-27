@@ -1,4 +1,4 @@
-QT += core
+QT += core network
 QT -= gui
 
 TARGET = crawlAngee
@@ -8,8 +8,15 @@ CONFIG -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    angeecrawlapplication.cpp
+    angeecrawlapplication.cpp \
+    crawlworkerthread.cpp \
+    httpdownloader.cpp \
+    page.cpp
 
 HEADERS += \
-    angeecrawlapplication.h
+    angeecrawlapplication.h \
+    crawlworkerthread.h \
+    httpdownloader.h \
+    page.h \
+    appdefaults.h
 
